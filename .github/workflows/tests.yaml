@@ -1,0 +1,38 @@
+name: Tests
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  schedule:
+    - cron: "0 0 * * *" # daily
+
+env:
+  UPSTASH_VECTOR_REST_URL: ${{ secrets.UPSTASH_VECTOR_REST_URL }}
+  UPSTASH_VECTOR_REST_TOKEN: ${{ secrets.UPSTASH_VECTOR_REST_TOKEN }}
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    concurrency: test
+
+    name: Tests
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v3
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install Dependencies
+        run: bun install
+
+      - name: Run Lint
+        run: bun run fmt
+
+      - name: Run tests
+        run: bun run test
+
+      - name: Run Build
+        run: bun run build

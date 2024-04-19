@@ -1,22 +1,50 @@
 {
   "name": "semantic-cache",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "type": "module",
   "scripts": {
-    "start": "npx tsc; node dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "bun test",
+    "fmt": "prettier --write .",
+    "lint": "tsc && eslint \"src/**/*.{js,ts,tsx}\" --quiet --fix",
+    "build": "tsup",
+    "prepare": "husky install"
   },
-  "keywords": [],
-  "author": "",
+  "bugs": {
+    "url": "https://github.com/upstash/vector/issues"
+  },
+  "description": "An HTTP/REST based Vector DB client built on top of Upstash REST API.",
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://upstash.com/vector",
+  "keywords": [
+    "vector",
+    "upstash",
+    "db",
+    "semantic-cache",
+    "cache"
+  ],
+  "author": "Enes Akar <enes@upstash.com>",
   "license": "ISC",
   "devDependencies": {
+    "@commitlint/cli": "^19.2.2",
+    "@commitlint/config-conventional": "^19.2.2",
     "@types/node": "^20.12.2",
-    "typescript": "^5.4.5"
+    "@typescript-eslint/eslint-plugin": "^7.0.1",
+    "@typescript-eslint/parser": "^7.0.1",
+    "bun-types": "latest",
+    "eslint": "^8",
+    "eslint-plugin-unicorn": "^51.0.1",
+    "husky": "^9.0.10",
+    "prettier": "^3.2.5",
+    "tsup": "latest",
+    "typescript": "^5.4.5",
+    "vitest": "latest"
   },
   "dependencies": {
-    "@upstash/vector": "^1.0.7",
-    "dotenv": "^16.4.5"
+    "@upstash/vector": "^1.0.7"
   }
 }
