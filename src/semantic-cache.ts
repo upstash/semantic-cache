@@ -1,4 +1,4 @@
-import type { Index } from "@upstash/vector"
+import type { Index } from "@upstash/vector";
 
 type SemanticCacheConfig = {
   /**
@@ -6,35 +6,35 @@ type SemanticCacheConfig = {
    * If you set it to 0.0 then it acts like a full text search query which means a value with the best proximity score (closest value) will be returned.
    * @default 0.9
    */
-  minProximity: number
+  minProximity: number;
   /**
    * Upstash serverless vector client
    */
-  index: Index
-}
+  index: Index;
+};
 
 export class SemanticCache {
-  private minProximity: number
-  private index: Index
+  private minProximity: number;
+  private index: Index;
 
   constructor(config: SemanticCacheConfig) {
-    this.minProximity = config.minProximity
-    this.index = config.index
+    this.minProximity = config.minProximity;
+    this.index = config.index;
   }
 
-  async get(key: string): Promise<string | undefined>
-  async get(keys: string[]): Promise<(string | undefined)[]>
+  async get(key: string): Promise<string | undefined>;
+  async get(keys: string[]): Promise<(string | undefined)[]>;
 
   async get(keyOrKeys: string | string[]): Promise<string | undefined | (string | undefined)[]> {
     if (typeof keyOrKeys === "string") {
-      const result = await this.queryKey(keyOrKeys)
-      return result
+      const result = await this.queryKey(keyOrKeys);
+      return result;
     }
 
     if (Array.isArray(keyOrKeys)) {
       // Multiple keys fetch
-      const results = await Promise.all(keyOrKeys.map((key) => this.queryKey(key)))
-      return results
+      const results = await Promise.all(keyOrKeys.map((key) => this.queryKey(key)));
+      return results;
     }
   }
 
@@ -44,15 +44,15 @@ export class SemanticCache {
       topK: 1,
       includeVectors: false,
       includeMetadata: true,
-    })
+    });
     if (result.length > 0 && result[0].score > this.minProximity) {
-      return result[0]?.metadata?.value as string
+      return result[0]?.metadata?.value as string;
     }
-    return
+    return;
   }
 
-  async set(key: string, value: string): Promise<void>
-  async set(keys: string[], values: string[]): Promise<void>
+  async set(key: string, value: string): Promise<void>;
+  async set(keys: string[], values: string[]): Promise<void>;
 
   async set(keyOrKeys: string | string[], valueOrValues?: string | string[]): Promise<void> {
     if (typeof keyOrKeys === "string" && typeof valueOrValues === "string") {
@@ -60,7 +60,7 @@ export class SemanticCache {
         id: keyOrKeys,
         data: keyOrKeys,
         metadata: { value: valueOrValues },
-      })
+      });
     }
 
     if (Array.isArray(keyOrKeys) && Array.isArray(valueOrValues)) {
@@ -68,24 +68,24 @@ export class SemanticCache {
         id: key,
         data: key,
         metadata: { value: valueOrValues[index] },
-      }))
+      }));
       for (const upsert of upserts) {
-        await this.index.upsert(upsert)
+        await this.index.upsert(upsert);
       }
     }
   }
 
   async delete(key: string): Promise<number> {
-    const result = await this.index.delete(key)
-    return result.deleted
+    const result = await this.index.delete(key);
+    return result.deleted;
   }
 
   async bulkDelete(keys: string[]): Promise<number> {
-    const result = await this.index.delete(keys)
-    return result.deleted
+    const result = await this.index.delete(keys);
+    return result.deleted;
   }
 
   async flush(): Promise<void> {
-    await this.index.reset()
+    await this.index.reset();
   }
 }
