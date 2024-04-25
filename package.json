@@ -13,9 +13,9 @@
     "prepare": "husky install"
   },
   "bugs": {
-    "url": "https://github.com/upstash/vector/issues"
+    "url": "https://github.com/upstash/semantic-cache/issues"
   },
-  "description": "An HTTP/REST based Vector DB client built on top of Upstash REST API.",
+  "description": "A Semantic cache built on top of Upstash Vector DB",
   "files": [
     "dist"
   ],
@@ -25,9 +25,14 @@
     "upstash",
     "db",
     "semantic-cache",
-    "cache"
+    "cache",
+    "classification"
   ],
   "author": "Enes Akar <enes@upstash.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/upstash/semantic-cache"
+  },
   "license": "ISC",
   "devDependencies": {
     "@commitlint/cli": "^19.2.2",
