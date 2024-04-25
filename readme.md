@@ -1,58 +1,72 @@
 # Semantic Cache
 
-Semantic Cache is a key value store that leverages similarity search capabilities provided by Upstash Vector to enable fuzzy data retrieval based on the meaning behind queries rather than exact word matches. This allows for flexible data access patterns which are particularly useful in applications involving natural language interactions.
+Semantic Cache is a tool for caching AI responses to avoid separate AI requests for similar search queries. This not only gives your users a faster response but also reduces AI costs. User queries can be similar but not identical (e.g., "places to sightsee in Spain" vs. "best places to visit in Spain"). Traditional caching doesn't recognize this semantic similarity and misses opportunities for reuse.
 
-## Features
+Semantic Cache allows you to:
 
-- **Semantic Query Understanding**: Retrieves stored data by understanding the semantics of the query, not just the literal text.
-- **Synonym Handling**: Recognizes and handles synonyms, allowing for diverse phrasing in queries.
-- **Multilingual Support**: Capable of handling queries across different languages (if configured with multilingual vector models).
-- **Complex Query Support**: Processes and understands complex queries to return relevant data.
-- **Easy Integration**: Simple API for integrating with Node.js applications using the Upstash Vector service.
-- **Customizable**: Allows for setting a minimum proximity threshold to filter out less accurate results.
+- Avoid redundant LLM work: An LLM processes all user requests, even if the answer is similar, and charges you for each request.
+- Provide faster responses: LLMs take a long time to respond, while responses from the cache are almost instant.
+
+<img src="./assets/how-semantic-cache-works.png" width="700">
+
+## How Semantic Cache helps
+
+- **Caches AI responses**: Stores cache results by the meaning of the response, not just the literal text
+- **Synonym handling**: Recognizes and handles synonyms
+- **Multi-language support**: Works across different languages (if configured with multilingual vector models)
+- **Complex query support**: Can understand complex user queries
+- **Easy integration**: Simple API for usage in Node.js applications
+- **Customizable**: Set a custom proximity threshold to filter out less accurate results
 
 ## Getting Started
 
 ### Prerequisites
 
-- npm or yarn
-- Access to Upstash Vector API (URL and token required)
+- An Upstash Vector database (create one [here](https://console.upstash.com/vector))
 
 ### Installation
 
-Install the dependencies:
+Install the package:
 
 ```bash
-npm install @upstash/semantic-cache
+npm install @upstash/semantic-cache @upstash/vector
 ```
 
 ### Setup
 
-First create an Upstash Vector Index, and obtain the URL and token. Choosing an embedding model is required. You can sign up for a free account at [Upstash](https://console.upstash.com/).
+First, create an Upstash Vector database [here](https://console.upstash.com/vector). You'll need the `url` and `token` credentials for connecting your semantic cache. Important: Choose any pre-made embedding model when creating your database.
 
 > [!NOTE]  
-> Choose an embedding model fits your use case. For example, if low latency is a priority, choose a model with a smaller size. If accuracy is important, choose a model with a larger size.
+> Different embedding models are great for different use cases. For example, if low latency is a priority, choose a model with a smaller dimension size like `bge-small-en-v1.5`. If accuracy is important, choose a model with more dimensions.
 
-Create a `.env` file in the root directory of the project and add your Upstash Vector URL and token:
+Create a `.env` file in the root directory of your project and add your Upstash Vector URL and token:
 
 ```plaintext
-VECTOR_URL=https://example.upstash.io
-VECTOR_TOKEN=your_secret_token_here
+UPSTASH_VECTOR_REST_URL=https://example.upstash.io
+UPSTASH_VECTOR_REST_TOKEN=your_secret_token_here
 ```
 
-### Using the SemanticCache
+### Using Semantic Cache
 
-Here’s how you can use the SemanticCache in your Node.js application:
+Here’s how you can use Semantic Cache in your Node.js application:
 
 ```typescript
-import { SemanticCache } from "@upstash/SemanticCache";
+import { SemanticCache } from "@upstash/semantic-cache";
+import { Index } from "@upstash/vector";
 
-const cache = new SemanticCache(process.env.VECTOR_URL, process.env.VECTOR_TOKEN, 0.9);
+// 👇 your vector database
+const index = new Index();
+
+// 👇 your semantic cache
+const semanticCache = new SemanticCache({ index, minProximity: 0.95 });
 
 async function runDemo() {
-  await cache.set("capital of Turkey", "Ankara");
+  await semanticCache.set("Capital of Turkey", "Ankara");
   await delay(1000);
-  console.log(await cache.get("Turkey's capital")); // Outputs: "Ankara"
+
+  // 👇 outputs: "Ankara"
+  const result = await semanticCache.get("What is Turkey's capital?");
+  console.log(result);
 }
 
 function delay(ms: number) {
@@ -62,66 +76,77 @@ function delay(ms: number) {
 runDemo();
 ```
 
-### About MinProximity Parameter
+### The `minProximity` Parameter
 
-The third parameter of the `SemanticCache` constructor is the `minProximity` parameter. This parameter is used to filter out results that are below a certain similarity threshold. A higher value will require more accuracy to hit for the cache. Lower value will increase the hit rate but may return less accurate results. The default value is 0.9.
-
-MinProximity is a value between 0 and 1. If you set is to 1.0 then it acts like a hash map which means only exact lexical matches will be returned. If you set it to 0.0 then it acts like a full text search query which means a value with the best proximity score (closest value) will be returned.
+The `minProximity` parameter ranges from `0` to `1`. It allows you to define the minimum relevance score used to determine a cache hit. The higher this number, the more similar your user input must be to the cached content to be a hit. In practice, a score of 0.95 indicates a very high similarity, while a score of 0.75 already indicates a low similarity. For example, a value of 1.00, the highest possible, would only accept an _exact_ match of your user query and cache content as a cache hit.
 
 ## Examples
 
-The following examples demonstrate how `SemanticCache` can be utilized in various scenarios:
+The following examples demonstrate how you can utilize Semantic Cache in various use cases:
 
 > [!NOTE]  
-> Note that we add a 1-second delay after setting the data to allow time for the vector index to update. This is necessary to ensure that the data is available for retrieval.
+> We add a 1-second delay after setting the data to allow time for the vector index to update. This delay is necessary to ensure that the data is available for retrieval.
 
 ### Basic Semantic Retrieval
 
 ```typescript
-await cache.set("capital of France", "Paris");
+await semanticCache.set("Capital of France", "Paris");
 await delay(1000);
-console.log(await cache.get("france's capital")); // Outputs: "Paris"
+
+// 👇 outputs "Paris"
+const result = await semanticCache.get("What's the capital of France?");
 ```
 
 ### Handling Synonyms
 
 ```typescript
-await cache.set("biggest city in USA", "New York");
+await semanticCache.set("largest city in USA by population", "New York");
 await delay(1000);
-console.log(await cache.get("largest city in USA")); // Outputs: "New York"
+
+// 👇 outputs "New York"
+const result = await semanticCache.get("which is the most populated city in the USA?");
 ```
 
 ### Multilingual Queries
 
-Note that your embedding model must support the languages you intend to use.
+Note: Your embedding model needs to support the languages you intend to use.
 
 ```typescript
-await cache.set("German Chancellor", "Olaf Scholz");
+await semanticCache.set("German Chancellor", "Olaf Scholz");
 await delay(1000);
-console.log(await cache.get("Bundeskanzler von Deutschland")); // Outputs: "Olaf Scholz"
+
+// 👇 "Who is the chancellor of Germany?" -> outputs "Olaf Scholz"
+const result = await semanticCache.get("Wer ist der Bundeskanzler von Deutschland?");
 ```
 
 ### Complex Queries
 
 ```typescript
-await cache.set("year when Berlin wall fell", "1989");
+await semanticCache.set("year in which the Berlin wall fell", "1989");
 await delay(1000);
-console.log(await cache.get("what year did the Berlin wall collapse")); // Outputs: "1989"
+
+// 👇 outputs "1989"
+const result = await semanticCache.get("what's the year the Berlin wall destroyed?");
 ```
 
 ### Different Contexts
 
 ```typescript
-await cache.set("chemical formula for water", "H2O");
-await cache.set("best drink on a hot day", "water");
+await semanticCache.set("the chemical formula for water", "H2O");
+await semanticCache.set("the healthiest drink on a hot day", "water");
+
 await delay(1000);
-console.log(await cache.get("what to drink when it's hot")); // Outputs: "water"
-console.log(await cache.get("what is water's chemical formula")); // Outputs: "H2O"
+
+// 👇 outputs "water"
+const result = await semanticCache.get("what should i drink when it's hot outside?");
+
+// 👇 outputs "H2O"
+const result = await semanticCache.get("tell me water's chemical formula");
 ```
 
 ## Contributing
 
-We welcome contributions from the community! If you'd like to contribute to the SemanticCache project, please fork the repository, make your changes, and submit a pull request.
+We appreciate your contributions! If you'd like to contribute to this project, please fork the repository, make your changes, and submit a pull request.
 
 ## License
 
