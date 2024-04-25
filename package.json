@@ -1,5 +1,5 @@
 {
-  "name": "semantic-cache",
+  "name": "@upstash/semantic-cache",
   "version": "1.0.1",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
