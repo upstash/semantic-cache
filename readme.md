@@ -1,22 +1,23 @@
 # Semantic Cache
 
-Semantic Cache is a tool for caching AI responses to avoid separate AI requests for similar search queries. This not only gives your users a faster response but also reduces AI costs. User queries can be similar but not identical (e.g., "places to sightsee in Spain" vs. "best places to visit in Spain"). Traditional caching doesn't recognize this semantic similarity and misses opportunities for reuse.
+Semantic Cache is a tool for caching natural text based on semantic similarity. It's ideal for any task that involves querying or retrieving information based on meaning, such as natural language classification or caching AI responses. Two pieces of text can be similar but not identical (e.g., "great places to check out in Spain" vs. "best places to visit in Spain"). Traditional caching doesn't recognize this semantic similarity and misses opportunities for reuse.
 
 Semantic Cache allows you to:
 
-- Avoid redundant LLM work: An LLM processes all user requests, even if the answer is similar, and charges you for each request.
-- Provide faster responses: LLMs take a long time to respond, while responses from the cache are almost instant.
+- Easily classify natural text into predefined categories
+- Avoid redundant LLM work by caching AI responses
+- Reduce API latency by responding to similar queries with already cached values
 
 <img src="./assets/how-semantic-cache-works.png" width="700">
 
-## How Semantic Cache helps
+## Highlights
 
-- **Caches AI responses**: Stores cache results by the meaning of the response, not just the literal text
-- **Synonym handling**: Recognizes and handles synonyms
+- **Uses semantic similarity**: Stores cache entries by their meaning, not just the literal characters
+- **Handles synonyms**: Recognizes and handles synonyms
 - **Multi-language support**: Works across different languages (if configured with multilingual vector models)
-- **Complex query support**: Can understand complex user queries
+- **Complex query support**: Understands long and nested user queries
 - **Easy integration**: Simple API for usage in Node.js applications
-- **Customizable**: Set a custom proximity threshold to filter out less accurate results
+- **Customizable**: Set a custom proximity threshold to filter out less relevant results
 
 ## Getting Started
 
@@ -34,7 +35,7 @@ npm install @upstash/semantic-cache @upstash/vector
 
 ### Setup
 
-First, create an Upstash Vector database [here](https://console.upstash.com/vector). You'll need the `url` and `token` credentials for connecting your semantic cache. Important: Choose any pre-made embedding model when creating your database.
+First, create an Upstash Vector database [here](https://console.upstash.com/vector). You'll need the `url` and `token` credentials to connect your semantic cache. Important: Choose any pre-made embedding model when creating your database.
 
 > [!NOTE]  
 > Different embedding models are great for different use cases. For example, if low latency is a priority, choose a model with a smaller dimension size like `bge-small-en-v1.5`. If accuracy is important, choose a model with more dimensions.
@@ -78,7 +79,7 @@ runDemo();
 
 ### The `minProximity` Parameter
 
-The `minProximity` parameter ranges from `0` to `1`. It allows you to define the minimum relevance score used to determine a cache hit. The higher this number, the more similar your user input must be to the cached content to be a hit. In practice, a score of 0.95 indicates a very high similarity, while a score of 0.75 already indicates a low similarity. For example, a value of 1.00, the highest possible, would only accept an _exact_ match of your user query and cache content as a cache hit.
+The `minProximity` parameter ranges from `0` to `1`. It lets you define the minimum relevance score to determine a cache hit. The higher this number, the more similar your user input must be to the cached content to be a hit. In practice, a score of 0.95 indicates a very high similarity, while a score of 0.75 already indicates a low similarity. For example, a value of 1.00, the highest possible, would only accept an _exact_ match of your user query and cache content as a cache hit.
 
 ## Examples
 
