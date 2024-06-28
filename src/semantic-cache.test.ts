@@ -80,4 +80,35 @@ describe("semantic-cache", () => {
 
     expect(firstResult).toBeUndefined();
   });
+
+  test("should work with namespaces", async () => {
+    const cache1 = new SemanticCache({
+      index: new Index(),
+      minProximity: PROXIMITY_THRESHOLD,
+      namespace: "cache1",
+    });
+
+    const cache2 = new SemanticCache({
+      index: new Index(),
+      minProximity: PROXIMITY_THRESHOLD,
+      namespace: "cache2",
+    });
+
+    const cachedValue1 = "water";
+    const cachedValue2 = "H2O";
+
+    await cache1.set("best drink on a hot day", cachedValue1);
+    await cache2.set("chemical formula for water", cachedValue2);
+    await sleep(DELAY_MS);
+
+    const result1 = await cache1.get("what to drink when it's hot");
+    const result2 = await cache2.get("what is water's chemical formula");
+
+    expect(result1).toBe(cachedValue1);
+    expect(result2).toBe(cachedValue2);
+
+    // Cleanup
+    await cache1.flush();
+    await cache2.flush();
+  });
 });
