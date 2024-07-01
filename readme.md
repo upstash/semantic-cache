@@ -2,9 +2,8 @@
 
 > [!NOTE]  
 > **This project is in the Experimental Stage.**
-> 
+>
 > We declare this project experimental to set clear expectations for your usage. There could be known or unknown bugs, the API could evolve, or the project could be discontinued if it does not find community adoption. While we cannot provide professional support for experimental projects, we’d be happy to hear from you if you see value in this project!
-
 
 Semantic Cache is a tool for caching natural text based on semantic similarity. It's ideal for any task that involves querying or retrieving information based on meaning, such as natural language classification or caching AI responses. Two pieces of text can be similar but not identical (e.g., "great places to check out in Spain" vs. "best places to visit in Spain"). Traditional caching doesn't recognize this semantic similarity and misses opportunities for reuse.
 
@@ -86,6 +85,23 @@ runDemo();
 ### The `minProximity` Parameter
 
 The `minProximity` parameter ranges from `0` to `1`. It lets you define the minimum relevance score to determine a cache hit. The higher this number, the more similar your user input must be to the cached content to be a hit. In practice, a score of 0.95 indicates a very high similarity, while a score of 0.75 already indicates a low similarity. For example, a value of 1.00, the highest possible, would only accept an _exact_ match of your user query and cache content as a cache hit.
+
+### Namespace Support
+
+You can seperate your data into partitions with namespaces.
+
+```typescript
+import { SemanticCache } from "@upstash/semantic-cache";
+import { Index } from "@upstash/vector";
+
+// 👇 your vector database
+const index = new Index();
+
+// 👇 your semantic cache
+const semanticCache = new SemanticCache({ index, minProximity: 0.95, namespace: "user1" });
+
+await semanticCache.set("Capital of Turkey", "Ankara");
+```
 
 ## Examples
 

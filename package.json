@@ -50,6 +50,6 @@
     "vitest": "latest"
   },
   "dependencies": {
-    "@upstash/vector": "^1.0.7"
+    "@upstash/vector": "^1.1.3"
   }
 }

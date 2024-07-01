@@ -11,15 +11,27 @@ type SemanticCacheConfig = {
    * Upstash serverless vector client
    */
   index: Index;
+
+  /**
+   * Optional namespace for the cache
+   */
+  namespace?: string;
 };
 
 export class SemanticCache {
   private minProximity: number;
   private index: Index;
+  private namespace?: string;
 
   constructor(config: SemanticCacheConfig) {
     this.minProximity = config.minProximity;
-    this.index = config.index;
+
+    if (config.namespace) {
+      this.index = config.index.namespace(config.namespace) as unknown as Index;
+      this.namespace = config.namespace;
+    } else {
+      this.index = config.index;
+    }
   }
 
   async get(key: string): Promise<string | undefined>;
@@ -86,6 +98,11 @@ export class SemanticCache {
   }
 
   async flush(): Promise<void> {
+    if (this.namespace) {
+      await this.index.reset({ namespace: this.namespace });
+      return;
+    }
+
     await this.index.reset();
   }
 }
