@@ -4,7 +4,6 @@
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
-  "type": "module",
   "scripts": {
     "test": "bun test",
     "fmt": "prettier --write .",
