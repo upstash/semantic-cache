@@ -44,7 +44,7 @@
     "eslint-plugin-unicorn": "^51.0.1",
     "husky": "^9.0.10",
     "prettier": "^3.2.5",
-    "tsup": "latest",
+    "tsup": "^8.2.3",
     "typescript": "^5.4.5",
     "vitest": "latest"
   },
